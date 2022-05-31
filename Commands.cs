@@ -177,12 +177,6 @@ namespace Mr.Bot.Modules
             await ReplyAsync("https://github.com/beepboi12/Grey-god");
         }
 
-        [Command("")]
-        async Task command()
-        {
-
-        }
-
         [Command("Watch")]
         public async Task Watch()
         {
@@ -193,6 +187,59 @@ namespace Mr.Bot.Modules
             .WithColor(Color.DarkPurple);
 
             await ReplyAsync("", false, builder.Build());
+        }
+        
+        [Command("greetings")]
+        public async Task greetings()
+        {
+            await ReplyAsync("** **");
+            await ReplyAsync("I don't want to talk to you b!&*#");
+        }
+
+        [Command("del")]
+        [Alias("clean")]
+        [Summary("Downloads and removes X messages from the current channel.")]
+        [RequireUserPermission(ChannelPermission.ManageMessages)]
+        [RequireBotPermission(ChannelPermission.ManageMessages)]
+        public async Task PurgeAsync(int amount)
+        {
+            // Check if the amount provided by the user is positive.
+            if (amount <= 0)
+            {
+                await ReplyAsync("The amount of messages to remove must be positive.");
+                return;
+            }
+
+            // Download X messages starting from Context.Message, which means
+            // that it won't delete the message used to invoke this command.
+            var messages = await Context.Channel.GetMessagesAsync(Context.Message, Direction.Before, amount).FlattenAsync();
+
+            // Note:
+            // FlattenAsync() might show up as a compiler error, because it's
+            // named differently on stable and nightly versions of Discord.Net.
+            // - Discord.Net 1.x: Flatten()
+            // - Discord.Net 2.x: FlattenAsync()
+
+            // Ensure that the messages aren't older than 14 days,
+            // because trying to bulk delete messages older than that
+            // will result in a bad request.
+            var filteredMessages = messages.Where(x => (DateTimeOffset.UtcNow - x.Timestamp).TotalDays <= 14);
+
+            // Get the total amount of messages.
+            var count = filteredMessages.Count();
+
+            // Check if there are any messages to delete.
+            if (count == 0)
+                await ReplyAsync("What should I delete idiot");
+
+            else
+            {
+                // The cast here isn't needed if you're using Discord.Net 1.x,
+                // but I'd recommend leaving it as it's what's required on 2.x, so
+                // if you decide to update you won't have to change this line.
+                await (Context.Channel as ITextChannel).DeleteMessagesAsync(filteredMessages);
+                await ReplyAsync($"Done. Removed {count} {(count > 1 ? "messages" : "message")}.");
+            }
         }
     }
 }
