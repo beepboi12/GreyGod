@@ -29,7 +29,7 @@ namespace Mr.Bot
                 .AddSingleton(_Commands)
                 .BuildServiceProvider();
 
-            string token = "OTczOTg2ODcyMzQ5MDMyNTE4.Gg_tX0.0fIsGkPJ--sDvWZCzhC7zgP-KYqm02_XG9sA6U";
+            string token = "Bot Token";
 
             _Client.Log += _Client_Log1;
 
