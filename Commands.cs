@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -21,9 +21,49 @@ namespace Mr.Bot.Modules
             ReplyAsync("pong");
         }
 
+        // Mute Command:
+        [Command("mute")]
+        [RequireUserPermission(GuildPermission.KickMembers)]
+        [RequireBotPermission(GuildPermission.KickMembers)]
+        public async Task Mute(IGuildUser user, int duration, string reason)
+        {
+            var role = await Context.Guild.CreateRoleAsync("Muted");
+            var Role = new GuildPermissions(false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false, // this one is for sendMessages
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         true,
+                                                         false,
+                                                         false,
+                                                         true,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         false);
+            await role.DeleteAsync();
+        }
+
         //ban's the specified user
         [Command("ban")]
         [RequireUserPermission(GuildPermission.BanMembers, ErrorMessage = "you don't have the permission to ``ban_member``!")]
+        [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "Please give the permission to ``ban_member``!")]
         public async Task BanMember(IGuildUser user = null, [Remainder] string reason = null)
         {
             if (user == null)
@@ -71,6 +111,7 @@ namespace Mr.Bot.Modules
         //kicks the specified user
         [Command("kick")]
         [RequireUserPermission(GuildPermission.BanMembers, ErrorMessage = "you don't have the permission to ``kick_member``!")]
+        [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "Please give the permission to ``kick_member``!")]
         async Task KickMember(IGuildUser user = null, [Remainder] string reason = null)
         {
             if (user == null)
@@ -111,6 +152,7 @@ namespace Mr.Bot.Modules
         //Unban's the specified user
         [Command("unban")]
         [RequireUserPermission(GuildPermission.BanMembers, ErrorMessage = "you don't have the permission to ``unban_member``!")]
+        [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "Please give the permission to ``unban_member``!")]
         async Task UnbanMember(IGuildUser user = null, [Remainder] string reason = null)
         {
             if (user == null)
@@ -160,22 +202,12 @@ namespace Mr.Bot.Modules
             await ReplyAsync($"{userInfo.Username}#{userInfo.Discriminator}");
         }
 
-
         //repeat's whatever is said after the command(announce)
         [Command("announce")]
         [Summary("Echoes a message.")]
+        [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "Please give the permission to ``announce``!")]
         public Task SayAsync([Remainder][Summary("The text to echo")] string echo)
         => ReplyAsync(echo);
-
-
-        //give's the user the GitHub repository of the bot
-        [Command("insider code")]
-        async Task Code()
-        {
-            await ReplyAsync("Just a sec...\nfetching data...");
-            await ReplyAsync("...");
-            await ReplyAsync("https://github.com/beepboi12/Grey-god");
-        }
 
         [Command("Watch")]
         public async Task Watch()
@@ -188,63 +220,21 @@ namespace Mr.Bot.Modules
 
             await ReplyAsync("", false, builder.Build());
         }
-        
+
         [Command("greetings")]
         public async Task greetings()
         {
-            await ReplyAsync("** **");
-            await ReplyAsync("I don't want to talk to you b!&*#");
+            await ReplyAsync("**REALLY DUD**");
+            await ReplyAsync("I DON'T WANT TO TALK TO YOU B!&*#");
         }
-
-        [Command("del")]
-        [Alias("clean")]
-        [Summary("Downloads and removes X messages from the current channel.")]
-        [RequireUserPermission(ChannelPermission.ManageMessages)]
-        [RequireBotPermission(ChannelPermission.ManageMessages)]
-        public async Task PurgeAsync(int amount)
+        
+        [Command("play")]
+        [Alias(";)")]
+        public async Task play()
         {
-            // Check if the amount provided by the user is positive.
-            if (amount <= 0)
-            {
-                await ReplyAsync("The amount of messages to remove must be positive.");
-                return;
-            }
+            ReplyAsync("what do you wanna play, nothing sus tho");
 
-            // Download X messages starting from Context.Message, which means
-            // that it won't delete the message used to invoke this command.
-            var messages = await Context.Channel.GetMessagesAsync(Context.Message, Direction.Before, amount).FlattenAsync();
-
-            // Note:
-            // FlattenAsync() might show up as a compiler error, because it's
-            // named differently on stable and nightly versions of Discord.Net.
-            // - Discord.Net 1.x: Flatten()
-            // - Discord.Net 2.x: FlattenAsync()
-
-            // Ensure that the messages aren't older than 14 days,
-            // because trying to bulk delete messages older than that
-            // will result in a bad request.
-            var filteredMessages = messages.Where(x => (DateTimeOffset.UtcNow - x.Timestamp).TotalDays <= 14);
-
-            // Get the total amount of messages.
-            var count = filteredMessages.Count();
-
-            // Check if there are any messages to delete.
-            if (count == 0)
-                await ReplyAsync("What should I delete idiot");
-
-            else
-            {
-                // The cast here isn't needed if you're using Discord.Net 1.x,
-                // but I'd recommend leaving it as it's what's required on 2.x, so
-                // if you decide to update you won't have to change this line.
-                await (Context.Channel as ITextChannel).DeleteMessagesAsync(filteredMessages);
-                await ReplyAsync($"Done. Removed {count} {(count > 1 ? "messages" : "message")}.");
-            }
         }
+
     }
 }
-
-       
-
-
-    
