@@ -235,6 +235,16 @@ namespace Mr.Bot.Modules
             ReplyAsync("what do you wanna play, nothing sus tho");
 
         }
+        
+        [Command("commands")]
+        public async Task cmd()
+        {
+            EmbedBuilder commands = new EmbedBuilder();
 
+            commands.WithTitle("Commands")
+            .WithDescription($" play\n greetings\n watch\n insider code\n announce\n userinfo\n unban,ban,kick(only available for admins)\n best song")
+            .WithColor(Color.Orange);
+
+            await ReplyAsync("", false, commands.Build());
     }
 }
